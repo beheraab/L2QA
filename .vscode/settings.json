@@ -1,0 +1,36 @@
+{
+    // Formating
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": [
+        "--max-line-length=120", // max number of characters per line
+    ],
+    "[python]": { // Ptyhon specific
+        "editor.formatOnType": true,
+        "editor.insertSpaces": true,
+        "editor.rulers": [79, 119],
+        "editor.tabSize": 4
+    },
+
+    // Linting
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintUseMinimalCheckers": false,
+    "python.linting.pycodestyleEnabled": true,
+    "python.linting.pycodestyleArgs": [
+        "--max-line-length=120"
+    ],
+
+    // Testing
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "files.trimTrailingWhitespace": true,
+    "python.testing.pytestArgs": [
+        "src/waldo_extract",
+    ],
+
+    // "python.testing.cwd": "packages"
+    // "python.testing.cwd": "qa/prodlib",  // for running tests in qa/prodlib
+    // "python.testing.cwd": "examples/training",  // for running tests in examples/training
+    // "python.testing.cwd": "training/{{cookiecutter.dir_name}}",  // for running tests in cookiecutter training directory
+}
