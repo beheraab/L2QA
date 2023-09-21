@@ -1,0 +1,29 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt"))
+
+analysis('tran ?stop "1n"  ?errpreset "moderate"  ?cmin ""  )
+envOption(
+	'analysisOrder  list("tran") 
+)
+option(	'additionalArgs  "" 
+	'try_fast_op  "no" 
+	'temp  "25.0" 
+)
+save( 'i "R_r0:1" )
+temp( 25.0 ) 
+
+run()
+I = value(IT("R_r0:1") 0.5e-09)
+
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "\n\ntestcase: ")
+fprintf(outfileHandle " I=")
+if(boundp('I) && I then
+  fprintf(outfileHandle "%1g\n" I )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
