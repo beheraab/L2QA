@@ -1,0 +1,20 @@
+//I_polo ({{subckt_terminal[2]}} {{subckt_terminal[3]}} {{subckt_terminal[4]}} {{subckt_terminal[5]}}) {{subckt_terminal[1]}}
+V_v0 ({{subckt_terminal[2]}} 0) vsource dc=1 type=dc
+C_c0 ({{subckt_terminal[3]}} 0) capacitor c=1ff
+V_v1 ({{subckt_terminal[4]}} 0) vsource dc=1 type=dc
+{% if not subckt_terminal[5] -%}
+V_v2 ({{subckt_terminal[5]}} 0) vsource dc=0 type=dc
+{% else -%}
+V_v2 (vss! 0) vsource dc=0 type=dc
+V_v3 (vss 0) vsource dc=0 type=dc
+{% if lvs_tool == 'calibre' -%}
+V_v4 (vss_ro_n 0) vsource dc=0 type=dc
+V_v5 (vss_ro_nal120 0) vsource dc=0 type=dc
+V_v6 (vss_ro_nal160 0) vsource dc=0 type=dc
+V_v7 (vss_ro_nal74 0) vsource dc=0 type=dc
+V_v8 (vss_ro_nlp 0) vsource dc=0 type=dc
+V_v9 (vss_ro_nlplvt 0) vsource dc=0 type=dc
+V_v10 (vss_ro_nlvt 0) vsource dc=0 type=dc
+{% endif -%}
+global vss
+{% endif -%}
