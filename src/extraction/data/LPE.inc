@@ -1,0 +1,2 @@
+DEFINE qa76ringoscillator /nfs/site/disks/icf_fdk_tcmgr003/1276/qa76ringoscillator/Trunk::Latest/qa76ringoscillator
+DEFINE tcockeri_switch_testcases_1276_dot31 /nfs/site/disks/ch_ciaf_disk058/fdk_gwa_disk005/tcockeri/f1276/work/p31/PROGRAMMABLE_SWITCH_cpdk7631_r0.3.2/tcockeri_switch_testcases_1276_dot31
