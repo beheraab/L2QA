@@ -1,0 +1,14 @@
+# extraction parameters
+kit_name : 'pdk7631_r0.8HP'
+tech_opt : ''
+tests_csv_filepath : '/nfs/pdx/disks/x5e2d_cw_gwa001/mxxxxx/fossil/lpeqa_specs/lpe/common:spec/tests-pdk76:p31_nativeStar:PDK_r0.8HP.csv'
+test_patterns : 'lpe_extract,lpe_compare,lpe_isotope,lpe_oa_isotope,lpe_polo,lpe_polo_oa,lpe_polo_smc_oa,lpe_polo_compare,lpe_polo_oa_compare,lpe_polo_smc_oa_compare'
+previous_polo_filepath : '/p/fdk/gwa/srikart/fossil/qa/lpeqa/links/p1276/31/PDK_r0.8HP/nativeStar/sles12-ww31.3_run_a//lpe_polo'
+compare_new : False
+compare_old : False
+compare_newvsold_prelayout : True
+compare_newvsold_polo : True
+reference_filepath : '/p/fdk/gwa/srikart/fossil/qa/lpeqa/links/p1276/31/PDK_r0.8HP/nativeStar/sles12-ww31.3_run_a/lpe_extract/'
+#For setup smc
+temp_list : '25,125,-40,-40,125'
+skew_list : 'tttt,pcss,pcff,prcs,prcf'
