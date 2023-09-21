@@ -1,0 +1,41 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt")   )
+
+analysis('dc ?saveOppoint t  )
+envOption(
+	'analysisOrder  list("dc") 
+)
+option(	'additionalArgs  "" 
+)
+save( 'i "R_r0:1" )
+save( 'v "R_r0:1" )
+temp( 27 ) 
+run()
+Vdrop = 1-VDC("R_r0:1")
+I = IDC("R_r0:1")
+Res = Vdrop/I
+selectResult('dcOp)
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "\ntestcase: ")
+fprintf(outfileHandle " Vdrop=")
+if(boundp('Vdrop) && Vdrop then
+  fprintf(outfileHandle "%1g\n" Vdrop )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+fprintf(outfileHandle " I=")
+if(boundp('I) && I then
+  fprintf(outfileHandle "%1g\n" I )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+fprintf(outfileHandle " Res=")
+if(boundp('Res) && Res then
+  fprintf(outfileHandle "%1g\n" Res )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
