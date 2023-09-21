@@ -1,0 +1,5 @@
+envSetVal("asimenv.startup" "projectDir" 'string "{{simualtion_path}}")
+simulator('spectre)
+design("{{lib_name}}" "{{cell_name}}" "schematic")
+createNetlist()
+exit()
