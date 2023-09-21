@@ -1,0 +1,41 @@
+simulator( 'spectre )
+design(	 "{{netlist_path}}")
+resultsDir( "{{results_path}}" )
+modelFile(     {{model_files}}   )
+option( 'redefinedparams  "warning")
+
+analysis('tran ?stop "10n"  ?errpreset "conservative"  ?step "1p"  )
+option( 'redefinedparams  "warning") ;; Redefined Model Parameters Will Issue Warnings & Move Forward with simulations
+envOption(
+	'analysisOrder  list("tran") 
+)
+
+converge( 'ic "/{{net_name2}}" "0" )
+temp( 27 ) 
+runPath=run()
+transientResult=selectResult( 'tran )
+
+freq = frequency(VT("/{{net_name2}}"))
+
+outfileHandle = outfile("{{outfile_handle}}" "a")
+
+unless(boundp('runPath) && runPath
+ fprintf(outfileHandle "ERROR from runPath=run() in ocean script, exiting\n")
+ exit()
+);unless
+
+unless(boundp('transientResult) && transientResult
+ fprintf(outfileHandle "ERROR from transientResult=selectResult( 'tran ) in ocean script, exiting\n")
+ exit()
+);unless
+
+fprintf(outfileHandle "\n\ntestcase:{{testcaseval}} ")
+fprintf(outfileHandle " freq=")
+if(boundp('freq) && freq then
+  fprintf(outfileHandle "%1g\n" freq )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+
+close(outfileHandle)
+exit()
