@@ -1,0 +1,23 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt"))
+
+analysis('ac ?start "1"  ?stop "100G"  )
+envOption(
+	'analysisOrder  list("ac") 
+)
+temp( 27 ) 
+run()
+cap = value((1 / (imag(VF("/net_name1") - VF("/net_name2")) * 6.2857 * 1e+10)) 1e+10)
+
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "\ntestcase: ")
+fprintf(outfileHandle " cap=")
+if(boundp('cap) && cap then
+  fprintf(outfileHandle "%1g\n" cap )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
