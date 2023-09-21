@@ -1,0 +1,35 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt"))
+
+analysis('ac ?start "100M"  ?stop "40G"  ?dec "100"  )
+envOption(
+	'firstRun  nil 
+	'analysisOrder  list("ac") 
+)
+option(	'additionalArgs  "" 
+)
+temp( 27 ) 
+run()
+
+Ind = value((imag((VF("/net_name1") - VF("/net_name2"))) / (6.2857 * xval(VF("/net_name1")))) 1e+10)
+
+Q = value((imag((VF("/net_name1") - VF("/net_name2"))) / real((VF("/net_name1") - VF("/net_name2")))) 1e+10)
+
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "\n\ntestcase: ")
+fprintf(outfileHandle " Ind=")
+if(boundp('Ind) && Ind then
+  fprintf(outfileHandle "%1g\n" Ind )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+fprintf(outfileHandle " Q=")
+if(boundp('Q) && Q then
+  fprintf(outfileHandle "%1g\n" Q )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
