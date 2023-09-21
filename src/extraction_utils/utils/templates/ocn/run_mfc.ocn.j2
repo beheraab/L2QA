@@ -1,0 +1,32 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt")   )
+option( 'redefinedparams  "warning")
+
+analysis('ac ?start "1"  ?stop "100G"  )
+option( 'redefinedparams  "warning") ;; Redefined Model Parameters Will Issue Warnings & Move Forward with simulations
+envOption(
+	'analysisOrder  list("ac") 
+)
+
+temp( 27 ) 
+run()
+selectResult( 'ac )
+
+cap = value(-(imag(IF("V__plus:p")) / (2 * 3.14 * 1e+10)) 1e+10)
+
+
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "This prelayout capacitance is dummy value coming from scripts/run_tfr.ocn. Added to make compare scripts compatible.\n")
+fprintf(outfileHandle "\n\ntestcase_ ")
+fprintf(outfileHandle " cap=1 \n\n")
+fprintf(outfileHandle "\n\ntestcase: ")
+fprintf(outfileHandle " cap=")
+if(boundp('cap) && cap then
+  fprintf(outfileHandle "%1g\n" cap )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
