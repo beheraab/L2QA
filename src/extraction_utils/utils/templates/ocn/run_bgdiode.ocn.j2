@@ -1,0 +1,26 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt"))
+
+
+analysis('tran ?stop "2u" )
+
+save( 'v "/net_name2" "/net_name1" )
+temp( 25 )
+run()
+
+
+V_bgdiode = (average(VT("/net_name2")) - average(VT("/net_name1")))
+
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "\n\ntestcase: ")
+fprintf(outfileHandle "V_bgdiode=")
+if(boundp('V_bgdiode) && V_bgdiode then
+  fprintf(outfileHandle "%1g\n" V_bgdiode )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
+
