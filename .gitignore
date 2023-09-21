@@ -1,0 +1,20 @@
+# Byte-compiled code
+*.py[cod]
+*$py.class
+__pycache__/
+
+# Unit test reports/results
+.cache
+.coverage
+.pytest_cache
+.tox
+
+# Miscellaneous
+.idea
+.vscode
+.venv
+*.egg-info
+build/
+dist/
+**/pytest_netbatch.*
+**/run
