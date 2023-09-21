@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Launch Pytest",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:VIRTUAL_ENV}/bin/pytest",
+            "args": [],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "_PYTEST_RAISE": "1", // tell pytest to reraise caught exception to vscode
+            }
+        },
+        {
+            "name": "Debug pytest",
+            "type": "python",
+            "request": "test",
+            "console": "internalConsole",
+            "justMyCode": false,
+            "env": {
+                "_PYTEST_RAISE": "1", // tell pytest to reraise caught exception to vscode
+            }
+        }
+    ]
+}
