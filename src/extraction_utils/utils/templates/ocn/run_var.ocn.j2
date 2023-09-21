@@ -1,0 +1,28 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt"))
+
+
+analysis('ac ?start "1"  ?stop "40G"  )
+
+envOption(
+                'analysisOrder  list("ac") 
+)
+option( 'additionalArgs  "" 
+)
+temp( 27 ) 
+run()
+
+Quality_factor = value((imag((VF("/net_name1") - VF("/net_name2"))) / real((VF("/net_name1") - VF("/net_name2")))) 1e+10)
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "\n\ntestcase: ")
+fprintf(outfileHandle "Quality_factor=")
+if(boundp('Quality_factor) && Quality_factor then
+  fprintf(outfileHandle "%1g\n" Quality_factor )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
+
