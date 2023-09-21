@@ -1,0 +1,65 @@
+id,xfail,profile,skew,temperature,smc,smcpair
+0,False,calibre_ccp,tttt,25,True,True
+1,False,calibre_ccp,tttt,25,True,False
+2,False,calibre_ccp,tttt,25,False,True
+3,False,calibre_ccp,tttt,25,False,False
+4,True,calibre_ccp,tttt,25 100,True,True
+5,False,calibre_ccp,tttt,25 100,True,False
+6,True,calibre_ccp,tttt,25 100,False,True
+7,True,calibre_ccp,tttt,25 100,False,False
+8,True,calibre_ccp,tttt pcss,25,True,True
+9,False,calibre_ccp,tttt pcss,25,True,False
+10,True,calibre_ccp,tttt pcss,25,False,True
+11,True,calibre_ccp,tttt pcss,25,False,False
+12,False,calibre_ccp,tttt pcss,25 100,True,True
+13,False,calibre_ccp,tttt pcss,25 100,True,False
+14,True,calibre_ccp,tttt pcss,25 100,False,True
+15,True,calibre_ccp,tttt pcss,25 100,False,False
+16,False,icv_ccp,tttt,25,True,True
+17,False,icv_ccp,tttt,25,True,False
+18,False,icv_ccp,tttt,25,False,True
+19,False,icv_ccp,tttt,25,False,False
+20,True,icv_ccp,tttt,25 100,True,True
+21,False,icv_ccp,tttt,25 100,True,False
+22,True,icv_ccp,tttt,25 100,False,True
+23,True,icv_ccp,tttt,25 100,False,False
+24,True,icv_ccp,tttt pcss,25,True,True
+25,False,icv_ccp,tttt pcss,25,True,False
+26,True,icv_ccp,tttt pcss,25,False,True
+27,True,icv_ccp,tttt pcss,25,False,False
+28,False,icv_ccp,tttt pcss,25 100,True,True
+29,False,icv_ccp,tttt pcss,25 100,True,False
+30,True,icv_ccp,tttt pcss,25 100,False,True
+31,True,icv_ccp,tttt pcss,25 100,False,False
+32,False,icv_qtf,tttt,25,True,True
+33,False,icv_qtf,tttt,25,True,False
+34,False,icv_qtf,tttt,25,False,True
+35,False,icv_qtf,tttt,25,False,False
+36,True,icv_qtf,tttt,25 100,True,True
+37,False,icv_qtf,tttt,25 100,True,False
+38,True,icv_qtf,tttt,25 100,False,True
+39,True,icv_qtf,tttt,25 100,False,False
+40,True,icv_qtf,tttt pcss,25,True,True
+41,True,icv_qtf,tttt pcss,25,True,False
+42,True,icv_qtf,tttt pcss,25,False,True
+43,True,icv_qtf,tttt pcss,25,False,False
+44,True,icv_qtf,tttt pcss,25 100,True,True
+45,True,icv_qtf,tttt pcss,25 100,True,False
+46,True,icv_qtf,tttt pcss,25 100,False,True
+47,True,icv_qtf,tttt pcss,25 100,False,False
+48,False,icv_native,tttt,25,True,True
+49,False,icv_native,tttt,25,True,False
+50,False,icv_native,tttt,25,False,True
+51,False,icv_native,tttt,25,False,False
+52,True,icv_native,tttt,25 100,True,True
+53,False,icv_native,tttt,25 100,True,False
+54,True,icv_native,tttt,25 100,False,True
+55,True,icv_native,tttt,25 100,False,False
+56,True,icv_native,tttt pcss,25,True,True
+57,False,icv_native,tttt pcss,25,True,False
+58,True,icv_native,tttt pcss,25,False,True
+59,True,icv_native,tttt pcss,25,False,False
+60,False,icv_native,tttt pcss,25 100,True,True
+61,False,icv_native,tttt pcss,25 100,True,False
+62,True,icv_native,tttt pcss,25 100,False,True
+63,True,icv_native,tttt pcss,25 100,False,False
