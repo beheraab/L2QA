@@ -1,0 +1,31 @@
+simulator( 'spectre )
+design(	 "<netlist_path>")
+resultsDir( "<results_path>" )
+modelFile(     '("model.scs" "tttt")   )
+option( 'redefinedparams  "warning")
+
+analysis('tran ?stop "3e-9"  )
+option( 'redefinedparams  "warning") ;; Redefined Model Parameters Will Issue Warnings & Move Forward with simulations
+envOption(
+	'analysisOrder  list("tran") 
+)
+
+temp( 27 ) 
+run()
+selectResult( 'tran )
+
+res = average(-0.9/IT("V__plus:p"))
+
+outfileHandle = outfile("<results.out>" "a")
+fprintf(outfileHandle "This prelayout resistance is dummy value coming from scripts/run_tfr.ocn. Added to make compare scripts compatible.\n")
+fprintf(outfileHandle "\n\ntestcase_ ")
+fprintf(outfileHandle " res=1 \n\n")
+fprintf(outfileHandle "\n\ntestcase: ")
+fprintf(outfileHandle " res=")
+if(boundp('res) && res then
+  fprintf(outfileHandle "%1g\n" res )
+else
+  fprintf(outfileHandle "ERROR\n")
+);if
+close(outfileHandle)
+exit()
