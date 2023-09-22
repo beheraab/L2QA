@@ -1,3 +1,2 @@
 pdk_name,tech_opt,profile,lib_name,cell_name,cds_lib,temperature,skew,layout,netlist
-pdk783_r0.9,opt12,icv_native,qa78ringoscillator,tc_180_ro_top,/nfs/site/disks/x5e2d_gwa_bibartan_01/p1278/work/pdk783_r0.9_opt12/cds.lib,25,tttt
-pdk783_r0.9,opt12,icv_native,qa78libana,tc3t_stinv_isoh_e,/nfs/site/disks/x5e2d_gwa_bibartan_01/p1278/work/pdk783_r0.9_opt12/cds.lib,25,tttt
+pdk783_r0.9,opt12,icv_native,qa78ringoscillator,tc_180_ro_top,/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/data/profiles/profile3/cds.lib,25,tttt
