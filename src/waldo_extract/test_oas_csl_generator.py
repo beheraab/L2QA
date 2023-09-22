@@ -33,7 +33,7 @@ def cleanup_after_all_tests(request):
 # Define a generator function that yields input data and expected results
 def generate_test_cases(): #read each entry of csv
 
-    with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW36.3/src/waldo_extract/kit_POR.csv', 'r') as csv_file:
+    with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/kit_POR.csv', 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         for row in csv_reader:
             # Convert values to integers since CSV data is read as strings
@@ -108,7 +108,7 @@ def test_func(test_data, waldo_rundir: RunDir):
 # The cleanup fixture will ensure this function runs after all tests
 def test_cleanup(cleanup_after_all_tests):
     # Your cleanup logic here
-    input_csv_file = "/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW36.3/src/waldo_extract/kit_POR.csv"
+    input_csv_file = "/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/kit_POR.csv"
     with open(input_csv_file, 'r') as csv_input:
         reader = csv.DictReader(csv_input)
         csv_data = [row for row in reader]
