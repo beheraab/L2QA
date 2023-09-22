@@ -33,7 +33,7 @@ DEF_NB_RESOURCE = '32G1C'
 
 
 def gen_params():
-    with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW36.3/src/waldo_extract/modified_kit_POR.csv' , 'r') as csv_file:
+    with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/modified_kit_POR.csv' , 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         # file_reader = csv.DictReader(file)
         for row in csv_reader:
@@ -120,13 +120,24 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
         waldo_extract_utils.create_new_library(kit=kit,
                                                output_cds_lib=cds_lib,
                                                run_dir=waldo_rundir.path,
-                                               lib_name='oa_lib',
+                                               lib_name=f"{params['settings.input.library']}_pcell_OA",
                                                cds_lib_include=cds_lib_include,
                                                lib_path=Path(waldo_rundir.path, 'oa_lib'))
         #print(waldo_rundir)
 
         run0_settings.put("output.oa_view.cds_lib", cds_lib)
 
+    #print("OA lib name: ", f"{params['settings.input.library']}_pcell_OA", "\n")
+    #oa_lib
+    source_path = f"{waldo_rundir.path}/{params['settings.input.library']}_pcell_OA/"
+   # print("Source path: ", source_path, "\n")
+    print(f" \n")
+    kitname = configs.get('extract_common_settings.pdk.pdk_name')
+    opt = configs.get('extract_common_settings.pdk.tech_opt')
+    destination_path = f"/p/fdk/f1278/debug_iind/central_runs/{kitname}_{opt}/test/{params['settings.input.library']}/extraction_pcell_cdl_native/"
+    command = f'cp -Rvf {source_path} {destination_path}'
+    os.system(command)
+    #print(f"Destination_path: {destination_path} \n")
 
     #merge per setting configs with the global config coming from pconf
     per_setting = wconfig.merge(wconfig.empty(), Request.config, configs)
@@ -134,6 +145,7 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
     print("per_setting:", per_setting)
     initialize_cadroot(per_setting)
     waldo_extract_utils.run_extraction(runs_settings, per_setting)
+
 
 
     subdir = configs.get('extract_common_settings.output.run_dir')
