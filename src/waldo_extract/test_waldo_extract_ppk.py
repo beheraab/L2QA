@@ -89,8 +89,8 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
     cds_lib_include = params.get('cds_lib_include', None)
     overrides = wconfig.merge(wconfig.empty(), params['settings'])
     #print("anbhg")
-   # print(f"{params['settings']}")
-   # print("before:", waldo_rundir.path)
+    # print(f"{params['settings']}")
+    # print("before:", waldo_rundir.path)
     monkeypatch.chdir(waldo_rundir.path)  #change the current directory to waldo_rundir.path
     #print("after:", waldo_rundir.path)
     # Merge all config files with default config
@@ -118,11 +118,11 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
         cds_lib = str(Path(waldo_rundir.path, 'cds.lib'))
         kit = Kit.get(run0_settings.get('pdk.pdk_name'), run0_settings.get('pdk.tech_opt'))
         waldo_extract_utils.create_new_library(kit=kit,
-                                               output_cds_lib=cds_lib,
-                                               run_dir=waldo_rundir.path,
-                                               lib_name=f"{params['settings.input.library']}_pcell_OA",
-                                               cds_lib_include=cds_lib_include,
-                                               lib_path=Path(waldo_rundir.path, 'oa_lib'))
+                                                output_cds_lib=cds_lib,
+                                                run_dir=waldo_rundir.path,
+                                                lib_name=f"{params['settings.input.library']}_pcell_OA",
+                                                cds_lib_include=cds_lib_include,
+                                                lib_path=Path(waldo_rundir.path, 'oa_lib'))
         #print(waldo_rundir)
 
         run0_settings.put("output.oa_view.cds_lib", cds_lib)
@@ -130,13 +130,12 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
     #print("OA lib name: ", f"{params['settings.input.library']}_pcell_OA", "\n")
     #oa_lib
     source_path = f"{waldo_rundir.path}/{params['settings.input.library']}_pcell_OA/"
-   # print("Source path: ", source_path, "\n")
-    print(f" \n")
+    #print("Source path: ", source_path, "\n")
+    #print(f" \n")
     kitname = configs.get('extract_common_settings.pdk.pdk_name')
     opt = configs.get('extract_common_settings.pdk.tech_opt')
     destination_path = f"/p/fdk/f1278/debug_iind/central_runs/{kitname}_{opt}/test/{params['settings.input.library']}/extraction_pcell_cdl_native/"
     command = f'cp -Rvf {source_path} {destination_path}'
-    os.system(command)
     #print(f"Destination_path: {destination_path} \n")
 
     #merge per setting configs with the global config coming from pconf
@@ -145,6 +144,9 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
     print("per_setting:", per_setting)
     initialize_cadroot(per_setting)
     waldo_extract_utils.run_extraction(runs_settings, per_setting)
+
+    #os.system(command)
+    #print("copy command executed \n")
 
 
 
