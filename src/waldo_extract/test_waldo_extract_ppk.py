@@ -31,9 +31,9 @@ profiles = wconfig.from_str(profiles_spec)
 TESTCASES_DIR = f"{WEXTRACT_DATA_DIR}/"
 DEF_NB_RESOURCE = '32G1C'
 
-    
+
 def gen_params():
-    with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW36.3/src/waldo_extract/modified_kit_POR.csv' , 'r') as csv_file:
+    with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/modified_kit_POR.csv' , 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         # file_reader = csv.DictReader(file)
         for row in csv_reader:
@@ -42,7 +42,7 @@ def gen_params():
             data.put('settings.input.cell',row['cell_name']) ## rev
             data.put('settings.input.layout',row["layout"])
             data.put('settings.input.library',row["lib_name"])
-           # test1 = data.get('settings.input.library')	    	    
+           # test1 = data.get('settings.input.library')
             data.put('settings.input.netlist',row['netlist'])
             data.put('settings.condition.temperature', row['temperature'].split())
             data.put('settings.condition.skew', row['skew'].split())
@@ -75,8 +75,8 @@ def gen_params():
                 marks.append(pytest.mark.xfail(reason='Expected to fail'))
 
             yield pytest.param(data, id=f"{data['id']}_{data['settings.input.cell']}", marks=marks)
-	    
-    
+
+
 
 
 @pytest.mark.parametrize('params', gen_params())
@@ -124,7 +124,7 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
                                                cds_lib_include=cds_lib_include,
                                                lib_path=Path(waldo_rundir.path, 'oa_lib'))
         #print(waldo_rundir)
-					       
+
         run0_settings.put("output.oa_view.cds_lib", cds_lib)
 
 
@@ -134,7 +134,7 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
     print("per_setting:", per_setting)
     initialize_cadroot(per_setting)
     waldo_extract_utils.run_extraction(runs_settings, per_setting)
-    
+
 
     subdir = configs.get('extract_common_settings.output.run_dir')
     extraction_run_dir = configs.get('extract_common_settings.output.extraction_run_dir')
