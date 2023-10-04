@@ -129,13 +129,13 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
 
     #print("OA lib name: ", f"{params['settings.input.library']}_pcell_OA", "\n")
     #oa_lib
-    source_path = f"{waldo_rundir.path}/{params['settings.input.library']}_pcell_OA/"
+    #source_path = f"{waldo_rundir.path}/{params['settings.input.library']}_pcell_OA/"
     #print("Source path: ", source_path, "\n")
     #print(f" \n")
-    kitname = configs.get('extract_common_settings.pdk.pdk_name')
-    opt = configs.get('extract_common_settings.pdk.tech_opt')
-    destination_path = f"/p/fdk/f1278/debug_iind/central_runs/{kitname}_{opt}/test/{params['settings.input.library']}/extraction_pcell_cdl_native/"
-    command = f'cp -Rvf {source_path} {destination_path}'
+    #kitname = configs.get('extract_common_settings.pdk.pdk_name')
+    #opt = configs.get('extract_common_settings.pdk.tech_opt')
+    #destination_path = f"/p/fdk/f1278/debug_iind/central_runs/{kitname}_{opt}/test/{params['settings.input.library']}/extraction_pcell_cdl_native/"
+    #command = f'cp -Rvf {source_path} {destination_path}'
     #print(f"Destination_path: {destination_path} \n")
 
     #merge per setting configs with the global config coming from pconf
