@@ -14,7 +14,6 @@ from waldo.model import Kit,ToolExec
 from waldo.tool.virtuoso.oasisout import OasisOut
 from waldo.tool.virtuoso import si, VirtuosoToolSetupError, CdsLib
 
-
 WEXTRACT_DATA_DIR = str(Path(__file__).parent / 'data')
 
 profiles_spec = f'''
@@ -25,50 +24,32 @@ icv_native {{
     runs = [run1,run2]
 }},
 '''
-
-
 profiles = wconfig.from_str(profiles_spec)
 TESTCASES_DIR = f"{WEXTRACT_DATA_DIR}/"
 DEF_NB_RESOURCE = '32G1C'
 
-
 def gen_params():
     with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/modified_kit_POR.csv' , 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
-        # file_reader = csv.DictReader(file)
+
         for row in csv_reader:
             profile_name = row['profile']
             data = wconfig.merge(wconfig.empty(), profiles.get(profile_name))
             data.put('settings.input.cell',row['cell_name']) ## rev
             data.put('settings.input.layout',row["layout"])
             data.put('settings.input.library',row["lib_name"])
-            # test1 = data.get('settings.input.library')
             data.put('settings.input.netlist',row['netlist'])
             data.put('settings.condition.temperature', row['temperature'].split())
             data.put('settings.condition.skew', row['skew'].split())
-            #data.put('settings.eda.smc', row['smc'].strip() == 'True')
-            #data.put('settings.eda.smcpair', row['smcpair'].strip() == 'True')
-            #data.put('xfail', row['xfail'].strip() == 'True')
+            if(len(row['skew'].split())>1):
+                #data.put('settings.eda.smc', row['smc'].strip() == 'True')
+                data.put('settings.eda.starrc.smc', 'True')
+                #data.put('settings.eda.smcpair', row['smcpair'].strip() == 'True')
+                data.put('settings.eda.starrc.smcpair', 'True')
+            else:
+                print("There is only one temperature skew, smc: False, smcpair: False")
             data.put('xfail', False)
 
-#    layout_testcases = glob.glob(f'{TESTCASES_DIR}/testcases/tc3t_stinv_pars_e.oas')
-#    for layout in layout_testcases:
-#        cell = Path(layout).stem
-#       netlist = f"{TESTCASES_DIR}/testcases/{cell}.cdl"
-#      if Path(netlist).exists():
-#
-#            profile_name = 'icv_native'
-#            data = wconfig.merge(wconfig.empty(), profiles.get(profile_name))
-#            data.put('settings.condition.temperature', ['25'])
-#            data.put('settings.condition.skew', ['tttt'])
-#            data.put('settings.input.cell', cell)
-#            data.put('settings.input.layout', layout)
-#            data.put('settings.input.netlist', netlist)
-#            #data.put('settings.eda.smc', False)
-#            #data.put('settings.eda.smcpair', False')
-#            data.put('xfail', False)#
-
-            # data.put('settings.misc.norun', True)  # norun
             nb_resource = data.get('nb_resource', DEF_NB_RESOURCE)
             marks = [pytest.mark.netbatch(resource=nb_resource)]
             if data['xfail']:
@@ -76,10 +57,8 @@ def gen_params():
 
             yield pytest.param(data, id=f"{data['id']}_{data['settings.input.cell']}", marks=marks)
 
-
-
-
 @pytest.mark.parametrize('params', gen_params())
+
 def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
 
     config_files = params['config_files']
@@ -88,77 +67,65 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
     xfail = params['xfail']
     cds_lib_include = params.get('cds_lib_include', None)
     overrides = wconfig.merge(wconfig.empty(), params['settings'])
-    #print("anbhg")
-    # print(f"{params['settings']}")
-    # print("before:", waldo_rundir.path)
     monkeypatch.chdir(waldo_rundir.path)  #change the current directory to waldo_rundir.path
-    #print("after:", waldo_rundir.path)
+
     # Merge all config files with default config
     configs = wconfig.merge(wconfig.empty(), wconfig.from_file(waldo_extract.DEFAULT_CFG),
                             *[Path(config_file) for config_file in config_files])
     # waldo_extract.DEFAULT_CFG = /nfs/site/disks/x5e2d_gwa_bibartan_01/WALDO/.virtualenvs/WW35.2/lib/python3.9/site-packages/wtool/extract/config/defaults.conf
-    #print("before resolution,", configs, "\n")
+
     os.environ['WEXTRACT_DATA_DIR'] = WEXTRACT_DATA_DIR
+    os.environ['LIB_NAME'] = params['settings.input.library']
     ConfigParser.resolve_substitutions(configs, accept_unresolved=True)  # resolve WALDO_UAT_TESTCASE_DIR , whyyyyy??????
-    #print("after resolution,", configs, "\n")
     runs_settings = waldo_extract_utils.compute_settings(configs, runs, overrides)
-    #print(runs_settings)
     run0_settings = runs_settings[runs[0]]
-    #print(run0_settings)
     #cell_name = run0_settings.get('input.cell')
     #extension = run0_settings.get('output.netlist_format')
-    #print(extension)
     run1_settings = runs_settings[runs[1]]
     cell_name = run1_settings.get('input.cell')
     extension = run1_settings.get('output.netlist_format')
-    #print(extension)
     # create new library. Library is created per test due to contention issues that may raise with
     # multiple tests writing to one nfs location.
+    name_oa = "oa_lib"
     if extension == 'oa':
         cds_lib = str(Path(waldo_rundir.path, 'cds.lib'))
         kit = Kit.get(run0_settings.get('pdk.pdk_name'), run0_settings.get('pdk.tech_opt'))
         waldo_extract_utils.create_new_library(kit=kit,
                                                 output_cds_lib=cds_lib,
                                                 run_dir=waldo_rundir.path,
-                                                lib_name=f"{params['settings.input.library']}_pcell_OA",
+                                                lib_name=name_oa,
                                                 cds_lib_include=cds_lib_include,
-                                                lib_path=Path(waldo_rundir.path, 'oa_lib'))
-        #print(waldo_rundir)
+                                                lib_path=Path(waldo_rundir.path, name_oa))
 
         run0_settings.put("output.oa_view.cds_lib", cds_lib)
 
-    #print("OA lib name: ", f"{params['settings.input.library']}_pcell_OA", "\n")
-    #oa_lib
-    #source_path = f"{waldo_rundir.path}/{params['settings.input.library']}_pcell_OA/"
-    #print("Source path: ", source_path, "\n")
-    #print(f" \n")
-    #kitname = configs.get('extract_common_settings.pdk.pdk_name')
-    #opt = configs.get('extract_common_settings.pdk.tech_opt')
-    #destination_path = f"/p/fdk/f1278/debug_iind/central_runs/{kitname}_{opt}/test/{params['settings.input.library']}/extraction_pcell_cdl_native/"
-    #command = f'cp -Rvf {source_path} {destination_path}'
-    #print(f"Destination_path: {destination_path} \n")
+
 
     #merge per setting configs with the global config coming from pconf
     per_setting = wconfig.merge(wconfig.empty(), Request.config, configs)
-    print("runs settings:", runs_settings, '\n')
-    print("per_setting:", per_setting)
     initialize_cadroot(per_setting)
     waldo_extract_utils.run_extraction(runs_settings, per_setting)
+
+    subdir = configs.get('extract_common_settings.output.run_dir')
+    extraction_run_dir = configs.get('extract_common_settings.output.extraction_run_dir')
+
+    source_path = f"{waldo_rundir.path}/{subdir}"
+    print("Source path: ", source_path, "\n")
+    kitname = configs.get('extract_common_settings.pdk.pdk_name')
+    opt = configs.get('extract_common_settings.pdk.tech_opt')
+    destination_path = f"/p/fdk/f1278/debug_iind/central_runs/{kitname}_{opt}/test/{params['settings.input.library']}/extraction_pcell_cdl_native/{params['settings.input.cell']}/"
+    print(f"Destination_path: {destination_path} \n")
+    # Create the chain of folders
+    os.makedirs(destination_path, exist_ok=True)
+    command = f'cp -Rvf {source_path} {destination_path}'
 
     #os.system(command)
     #print("copy command executed \n")
 
 
 
-    subdir = configs.get('extract_common_settings.output.run_dir')
-    extraction_run_dir = configs.get('extract_common_settings.output.extraction_run_dir')
-
     spf_files = list(Path(waldo_rundir.path, subdir, extraction_run_dir).glob(f'{cell_name}*.spf'))
     oa_files = list(Path(waldo_rundir.path).glob(f'**/{cell_name}/*/layout.oa'))
-
-    print('Search location:', Path(waldo_rundir.path, subdir, extraction_run_dir))
-    print('SPF files:', spf_files)
-    print('OA files:', oa_files)
 
     if xfail:
         pytest.xfail('expected fail')
@@ -167,5 +134,3 @@ def test_extensive_flow(monkeypatch, waldo_rundir: RunDir, params):
             assert len(oa_files) > 0, 'OA file does not exist'
         else:
             assert len(spf_files) > 0, 'SPF file does not exist'
-
-#new push to branch
