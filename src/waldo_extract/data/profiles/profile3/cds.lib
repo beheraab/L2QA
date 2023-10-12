@@ -1,0 +1,3 @@
+INCLUDE $INTEL_PDK/libraries/cds.lib.pcell
+DEFINE qa78libana /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78libana/Trunk::Latest/qa78libana
+DEFINE qa78ringoscillator /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78ringoscillator/Trunk::Latest/qa78ringoscillator

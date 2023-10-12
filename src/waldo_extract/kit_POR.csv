@@ -1,2 +1,3 @@
-pdk_name,tech_opt,profile,lib_name,cell_name,cds_lib,temperature,skew,layout,netlist
-pdk783_r0.9,opt12,icv_native,qa78ringoscillator,tc_180_ro_top,/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/data/profiles/profile3/cds.lib,25,tttt
+pdk_name,tech_opt,profile,lib_name,cell_name,temperature,skew,layout,netlist
+pdk783_r0.9,opt12,icv_native,qa78ringoscillator,tc_180_ro_top,25,tttt
+pdk783_r0.9,opt12,icv_native,qa78libana,tc_stinv_pars_e,25,tttt
