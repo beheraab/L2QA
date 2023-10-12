@@ -4,6 +4,7 @@ import csv
 from pathlib import Path
 import glob
 import pytest
+import pytest_check
 from pyhocon import ConfigParser
 from waldo.pytest.fixture import Request
 from waldo.pytest import RunDir, initialize_cadroot
@@ -28,12 +29,14 @@ icv_native {{
 profiles = wconfig.from_str(profiles_spec)
 TESTCASES_DIR = f"{WEXTRACT_DATA_DIR}/"
 DEF_NB_RESOURCE = '32G1C'
+CDS_LIB_DIR = f"{WEXTRACT_DATA_DIR}/profiles/profile3/cds.lib"
 
 oas_cdl_generated_dict = dict()
 
 def generate_oas_cdl_params():
 
     #with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/kit_POR.csv', 'r') as csv_file:
+
     with open(f'{WEXTRACT_DIR}/kit_POR.csv', 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         for row in csv_reader:
@@ -42,7 +45,7 @@ def generate_oas_cdl_params():
             data = wconfig.merge(wconfig.empty(), profiles.get(profile_name))
             data.put('settings.input.cell',row['cell_name']) ## rev
             data.put('settings.pdk.kit', Kit.get(row['pdk_name'], row['tech_opt']))
-            data.put('settings.input.cdslib', row['cds_lib'])
+            data.put('settings.input.cdslib', CDS_LIB_DIR)
             data.put('settings.input.library',row['lib_name'])
             data.put('settings.input.profile',row['profile'])
             data.put('settings.condition.temperature', row['temperature'].split())
@@ -72,7 +75,7 @@ def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypa
                             run_dir=waldo_rundir.path,
                             lib_name=data['settings.input.library'],
                             cell_name=data['settings.input.cell'],
-                            cds_lib=data['settings.input.cdslib'])
+                            cds_lib=CDS_LIB_DIR)
     except RuntimeError as err:
         assert not str(err)
 
@@ -96,7 +99,7 @@ def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypa
                         lib_name=data['settings.input.library'],
                         cell_name=data['settings.input.cell'],
                         run_dir=waldo_rundir.path,
-                        cds_lib=data['settings.input.cdslib'])
+                        cds_lib=CDS_LIB_DIR)
     except RuntimeError as err:
         assert not str(err)
 
@@ -161,15 +164,15 @@ def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypa
     layout_errors_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.LAYOUT_ERRORS" ))
     print("Layout error file: ", layout_errors_file, "\n")
 
-    # try:
-    #     with open(layout_errors_file, "r") as file:
-    #         file_content = file.read()
-    #         # Assert that the target string is not present in the file content
-    #         assert "LAYOUT ERRORS RESULTS: ERRORS" not in file_content, f"LVS failed for {data['settings.input.cell']}"
-    # except FileNotFoundError:
-    #     pytest.xfail(f"File '{layout_errors_file}' not found")
+    try:
+        with open(layout_errors_file, "r") as file:
+            file_content = file.read()
+            # Assert that the target string is not present in the file content
+            assert "LAYOUT ERRORS RESULTS: ERRORS" not in file_content, f"LVS failed for {data['settings.input.cell']}"
+    except FileNotFoundError:
+        pytest.xfail(f"File '{layout_errors_file}' not found")
 
-    source_path = f"{waldo_rundir.path}"
+    source_path = f"{waldo_rundir.path}/*/"
     print("Source path: ", source_path, "\n")
     kitname = configs.get('extract_common_settings.pdk.pdk_name')
     opt = configs.get('extract_common_settings.pdk.tech_opt')
@@ -179,8 +182,8 @@ def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypa
     os.makedirs(destination_path, exist_ok=True)
     command = f'cp -Rvf {source_path} {destination_path}'
 
-    #os.system(command)
-    #print("copy command executed \n")
+    os.system(command)
+    print("copy command executed \n")
 
     spf_files = list(Path(waldo_rundir.path, subdir, extraction_run_dir).glob(f'{cell_name}*.spf'))
     oa_files = list(Path(waldo_rundir.path).glob(f'**/{cell_name}/*/layout.oa'))
