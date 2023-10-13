@@ -11,7 +11,7 @@ from waldo.pytest import RunDir, initialize_cadroot
 from waldo.util import config as wconfig
 from wtool.extract.cli import waldo_extract
 from wtool.extract import waldo_extract_utils
-from waldo.model import Kit,ToolExec
+from waldo.model import Kit, ToolExec
 from waldo.tool.virtuoso.oasisout import OasisOut
 from waldo.tool.virtuoso import si, VirtuosoToolSetupError, CdsLib
 
@@ -33,6 +33,7 @@ CDS_LIB_DIR = f"{WEXTRACT_DATA_DIR}/profiles/profile3/cds.lib"
 
 oas_cdl_generated_dict = dict()
 
+
 def generate_oas_cdl_params():
 
     #with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/kit_POR.csv', 'r') as csv_file:
@@ -43,14 +44,14 @@ def generate_oas_cdl_params():
             # Convert values to integers since CSV data is read as strings
             profile_name = row['profile']
             data = wconfig.merge(wconfig.empty(), profiles.get(profile_name))
-            data.put('settings.input.cell',row['cell_name']) ## rev
-            data.put('settings.pdk.kit', Kit.get(row['pdk_name'], row['tech_opt']))
+            data.put('settings.input.cell', row['cell_name'])   # rev
+            data.put('settings.input.category', row['category'])
             data.put('settings.input.cdslib', CDS_LIB_DIR)
-            data.put('settings.input.library',row['lib_name'])
-            data.put('settings.input.profile',row['profile'])
+            data.put('settings.input.library', row['lib_name'])
+            data.put('settings.input.profile', row['profile'])
             data.put('settings.condition.temperature', row['temperature'].split())
             data.put('settings.condition.skew', row['skew'].split())
-            if(len(row['skew'].split())>1):
+            if (len(row['skew'].split()) > 1):
                 data.put('settings.eda.starrc.smc', 'True')
                 data.put('settings.eda.starrc.smcpair', 'True')
             else:
@@ -66,12 +67,17 @@ def generate_oas_cdl_params():
 
 # Use the @pytest.mark.parametrize decorator with the generator function
 @pytest.mark.parametrize("data", generate_oas_cdl_params())
-def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch):
+def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch):
 
     os.environ['WALDO_RUN_DIR'] = str(Path(waldo_rundir.path))
+    waldo_kit.__init__(kit_name=Request.config.get('kit_name'),
+                        tech_opt=Request.config.get('tech_opt'),
+                        iter=Request.config.get('iteration'))
+    print("Kit root: ", waldo_kit.root, "\n")
 
     try:
-        oasisout = OasisOut(kit=data['settings.pdk.kit'],
+        #oasisout = OasisOut(kit=data['settings.pdk.kit'],
+        oasisout = OasisOut(kit=waldo_kit,
                             run_dir=waldo_rundir.path,
                             lib_name=data['settings.input.library'],
                             cell_name=data['settings.input.cell'],
@@ -92,14 +98,15 @@ def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypa
             return
     except (RuntimeError, FileNotFoundError):
         pass # to be reconsidered
-    assert exitcode_oas == 0, stderr_oas or stdout_oas # to be reconsidered
+    assert exitcode_oas == 0, stderr_oas or stdout_oas  # to be reconsidered
 
     try:
-        cdlout = si.Si(kit=data['settings.pdk.kit'],
+        cdlout = si.Si(kit=waldo_kit,
                         lib_name=data['settings.input.library'],
                         cell_name=data['settings.input.cell'],
                         run_dir=waldo_rundir.path,
-                        cds_lib=CDS_LIB_DIR)
+                        cds_lib=CDS_LIB_DIR,
+                        include_file=glob.glob(waldo_kit.root + "/libraries/custom/cdl/common/" + '*.cdl')[0])
     except RuntimeError as err:
         assert not str(err)
 
@@ -118,7 +125,6 @@ def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypa
     id = data['id']
     xfail = data['xfail']
     cds_lib_include = data.get('cds_lib_include', None)
-    data.pop('settings.pdk.kit')
     overrides = wconfig.merge(wconfig.empty(), data['settings'])
     #print("Overrides: ", data['settings.pdk.kit'], "\n")
 
@@ -129,7 +135,7 @@ def test_oas_cdl_generation(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypa
     # waldo_extract.DEFAULT_CFG = /nfs/site/disks/x5e2d_gwa_bibartan_01/WALDO/.virtualenvs/WW35.2/lib/python3.9/site-packages/wtool/extract/config/defaults.conf
 
     os.environ['WEXTRACT_DATA_DIR'] = WEXTRACT_DATA_DIR
-    os.environ['LIB_NAME'] = data['settings.input.library']
+    os.environ['CATEGORY'] = data['settings.input.category']
     ConfigParser.resolve_substitutions(configs, accept_unresolved=True)  # resolve WALDO_UAT_TESTCASE_DIR , whyyyyy??????
     runs_settings = waldo_extract_utils.compute_settings(configs, runs, overrides)
     run0_settings = runs_settings[runs[0]]

@@ -1,3 +1,11 @@
-INCLUDE $INTEL_PDK/libraries/cds.lib.pcell
+INCLUDE /nfs/site/disks/oneshelf_1278_sc_shelf003/dkg/kits/pdk/dot3/pdk783_r0.9/1832/libraries/cds.lib.pcell
 DEFINE qa78libana /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78libana/Trunk::Latest/qa78libana
 DEFINE qa78ringoscillator /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78ringoscillator/Trunk::Latest/qa78ringoscillator
+DEFINE qa78activedevices /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78activedevices/Trunk::Latest/qa78activedevices
+DEFINE qa78analog /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78analog/Trunk::Latest/qa78analog
+DEFINE qa78complex /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78complex/Trunk::Latest/qa78complex
+DEFINE qa78esd /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78esd/Trunk::Latest/qa78esd
+DEFINE qa78fill /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78fill/Trunk::Latest/qa78fill
+DEFINE qa78msoa /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78msoa/Trunk::Latest/qa78msoa
+DEFINE qa78pgate /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78pgate/Trunk::Latest/qa78pgate
+DEFINE qa78rc_filters /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78rc_filters/Trunk::Latest/qa78rc_filters
