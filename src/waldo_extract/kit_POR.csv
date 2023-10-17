@@ -1,3 +1,2 @@
 tech_opt,profile,lib_name,cell_name,temperature,skew,category
-opt12,icv_native,qa78rc_filters,tc_mfc_nv_m8,25,tttt,mfc
-opt12,icv_native,qa78rc_filters,tc_mim_inv,25,tttt,mim
+opt12,calibre_native,qa78rc_filters,tc_mim_inv_nv,25,tttt,mim_pcell

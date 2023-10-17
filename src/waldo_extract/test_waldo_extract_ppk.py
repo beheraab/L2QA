@@ -24,7 +24,13 @@ icv_native {{
     id = icv_native
     nb_resource = 32G1C
     runs = [run1,run2]
-}},
+}}
+calibre_native {{
+    config_files = [{WEXTRACT_DATA_DIR}/profiles/profile2/calibre_star_native_ppk.conf]
+    id = calibre_native
+    nb_resource = 32G1C
+    runs = [run1,run2]
+}}
 '''
 profiles = wconfig.from_str(profiles_spec)
 TESTCASES_DIR = f"{WEXTRACT_DATA_DIR}/"
@@ -55,6 +61,8 @@ def generate_oas_cdl_params():
                 data.put('settings.eda.starrc.smc', 'True')
                 data.put('settings.eda.starrc.smcpair', 'True')
             else:
+                data.put('settings.eda.starrc.smc', 'False')
+                data.put('settings.eda.starrc.smcpair', 'False')
                 print("There is only one temperature skew, smc: False, smcpair: False")
             data.put('xfail', False)
 
@@ -100,13 +108,25 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
         pass # to be reconsidered
     assert exitcode_oas == 0, stderr_oas or stdout_oas  # to be reconsidered
 
+    # Combine intel78custom.cdl and intel78prim.cdl files
+    with open(glob.glob(waldo_kit.root + "/libraries/custom/cdl/common/" + '*.cdl')[0], 'r') as include_file:
+        content1 = include_file.read()
+
+    with open(glob.glob(waldo_kit.root + "/libraries/prim/cdl/common/" + '*.cdl')[0], 'r') as include_file:
+        content2 = include_file.read()
+
+    combined_content = content1 + content2
+
+    with open(str(Path(waldo_rundir.path, "combined_include_file.cdl")), 'w') as combined_include_file:
+        combined_include_file.write(combined_content)
+
     try:
         cdlout = si.Si(kit=waldo_kit,
                         lib_name=data['settings.input.library'],
                         cell_name=data['settings.input.cell'],
                         run_dir=waldo_rundir.path,
                         cds_lib=CDS_LIB_DIR,
-                        include_file=glob.glob(waldo_kit.root + "/libraries/custom/cdl/common/" + '*.cdl')[0])
+                        include_file=str(Path(waldo_rundir.path, "combined_include_file.cdl")))
     except RuntimeError as err:
         assert not str(err)
 
@@ -141,7 +161,7 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     run0_settings = runs_settings[runs[0]]
     #cell_name = run0_settings.get('input.cell')
     #extension = run0_settings.get('output.netlist_format')
-    run1_settings = runs_settings[runs[1]]
+    run1_settings = runs_settings[runs[1]] #runs2
     cell_name = run1_settings.get('input.cell')
     extension = run1_settings.get('output.netlist_format')
     # create new library. Library is created per test due to contention issues that may raise with
@@ -167,16 +187,41 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     subdir = configs.get('extract_common_settings.output.run_dir')
     extraction_run_dir = configs.get('extract_common_settings.output.extraction_run_dir')
     rcx_lvs_dir = configs.get('extract_common_settings.output.lvs_run_dir')
-    layout_errors_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.LAYOUT_ERRORS" ))
-    print("Layout error file: ", layout_errors_file, "\n")
 
+    ############START:Failure Checks################################
+
+    # icv.log
+    icv_log_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, "icv.log" ))
     try:
-        with open(layout_errors_file, "r") as file:
+        with open(icv_log_file, "r") as file:
             file_content = file.read()
             # Assert that the target string is not present in the file content
-            assert "LAYOUT ERRORS RESULTS: ERRORS" not in file_content, f"LVS failed for {data['settings.input.cell']}"
+            assert "IC Validator is done." in file_content, f"IC Validation failed for {data['settings.input.cell']}. Check {icv_log_file} for errors"
     except FileNotFoundError:
-        pytest.xfail(f"File '{layout_errors_file}' not found")
+        pytest.xfail(f"File '{icv_log_file}' not found")
+
+    #<cell_name>.RESULTS
+    layout_results_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.RESULTS" ))
+    try:
+        with open(layout_results_file, "r") as file:
+            file_content = file.read()
+            # Assert that the target string is not present in the file content
+            assert "DRC and Extraction Results: CLEAN" in file_content, f"DRC and Extraction failed for {data['settings.input.cell']}. Check {layout_results_file} for errors"
+            assert "LVS Compare Results: PASS" in file_content, f"LVS Compare failed for {data['settings.input.cell']}"
+    except FileNotFoundError:
+        pytest.xfail(f"File '{layout_results_file}' not found")
+
+    #<cell_name>.TOP_LAYOUT_ERRORS
+    layout_top_errors_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.TOP_LAYOUT_ERRORS" ))
+    try:
+        with open(layout_top_errors_file, "r") as file:
+            file_content = file.read()
+            # Assert that the target string is not present in the file content
+            assert "TOP LAYOUT ERRORS RESULTS: CLEAN" in file_content, f"Top layout errors present in {data['settings.input.cell']}. Check {layout_top_errors_file} for errors"
+    except FileNotFoundError:
+        pytest.xfail(f"File '{layout_top_errors_file}' not found")
+
+    ############END:Failure Checks################################
 
     source_path = f"{waldo_rundir.path}/*/"
     print("Source path: ", source_path, "\n")
@@ -188,8 +233,8 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     os.makedirs(destination_path, exist_ok=True)
     command = f'cp -Rvf {source_path} {destination_path}'
 
-    os.system(command)
-    print("copy command executed \n")
+    #os.system(command)
+    #print("copy command executed \n")
 
     spf_files = list(Path(waldo_rundir.path, subdir, extraction_run_dir).glob(f'{cell_name}*.spf'))
     oa_files = list(Path(waldo_rundir.path).glob(f'**/{cell_name}/*/layout.oa'))
