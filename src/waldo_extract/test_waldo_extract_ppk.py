@@ -31,6 +31,12 @@ calibre_native {{
     nb_resource = 32G1C
     runs = [run1,run2]
 }}
+calibre_qrc {{
+    config_files = [{WEXTRACT_DATA_DIR}/profiles/profile2/calibre_qrc_native_ppk.conf]
+    id = calibre_qrc
+    nb_resource = 32G1C
+    runs = [run1,run2]
+}}
 '''
 profiles = wconfig.from_str(profiles_spec)
 TESTCASES_DIR = f"{WEXTRACT_DATA_DIR}/"
@@ -61,8 +67,6 @@ def generate_oas_cdl_params():
                 data.put('settings.eda.starrc.smc', 'True')
                 data.put('settings.eda.starrc.smcpair', 'True')
             else:
-                data.put('settings.eda.starrc.smc', 'False')
-                data.put('settings.eda.starrc.smcpair', 'False')
                 print("There is only one temperature skew, smc: False, smcpair: False")
             data.put('xfail', False)
 
@@ -191,35 +195,42 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     ############START:Failure Checks################################
 
     # icv.log
-    icv_log_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, "icv.log" ))
-    try:
-        with open(icv_log_file, "r") as file:
-            file_content = file.read()
-            # Assert that the target string is not present in the file content
-            assert "IC Validator is done." in file_content, f"IC Validation failed for {data['settings.input.cell']}. Check {icv_log_file} for errors"
-    except FileNotFoundError:
-        pytest.xfail(f"File '{icv_log_file}' not found")
+    if data['id'] == 'icv_native':
+        icv_log_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, "icv.log" ))
+        try:
+            with open(icv_log_file, "r") as file:
+                file_content = file.read()
+                # Assert that the target string is not present in the file content
+                assert "IC Validator is done." in file_content, f"IC Validation failed for {data['settings.input.cell']}. Check {icv_log_file} for errors"
+        except FileNotFoundError:
+            pytest.xfail(f"File '{icv_log_file}' not found")
 
-    #<cell_name>.RESULTS
-    layout_results_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.RESULTS" ))
-    try:
-        with open(layout_results_file, "r") as file:
-            file_content = file.read()
-            # Assert that the target string is not present in the file content
-            assert "DRC and Extraction Results: CLEAN" in file_content, f"DRC and Extraction failed for {data['settings.input.cell']}. Check {layout_results_file} for errors"
-            assert "LVS Compare Results: PASS" in file_content, f"LVS Compare failed for {data['settings.input.cell']}"
-    except FileNotFoundError:
-        pytest.xfail(f"File '{layout_results_file}' not found")
+        #<cell_name>.RESULTS
+        layout_results_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.RESULTS" ))
+        try:
+            with open(layout_results_file, "r") as file:
+                file_content = file.read()
+                # Assert that the target string is not present in the file content
+                assert "DRC and Extraction Results: CLEAN" in file_content, f"DRC and Extraction failed for {data['settings.input.cell']}. Check {layout_results_file} for errors"
+                assert "LVS Compare Results: PASS" in file_content, f"LVS Compare failed for {data['settings.input.cell']}"
+        except FileNotFoundError:
+            pytest.xfail(f"File '{layout_results_file}' not found")
 
-    #<cell_name>.TOP_LAYOUT_ERRORS
-    layout_top_errors_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.TOP_LAYOUT_ERRORS" ))
-    try:
-        with open(layout_top_errors_file, "r") as file:
-            file_content = file.read()
-            # Assert that the target string is not present in the file content
-            assert "TOP LAYOUT ERRORS RESULTS: CLEAN" in file_content, f"Top layout errors present in {data['settings.input.cell']}. Check {layout_top_errors_file} for errors"
-    except FileNotFoundError:
-        pytest.xfail(f"File '{layout_top_errors_file}' not found")
+        #<cell_name>.TOP_LAYOUT_ERRORS
+        layout_top_errors_file = str(Path(waldo_rundir.path, subdir, rcx_lvs_dir, f"{data['settings.input.cell']}.TOP_LAYOUT_ERRORS" ))
+        try:
+            with open(layout_top_errors_file, "r") as file:
+                file_content = file.read()
+                # Assert that the target string is not present in the file content
+                assert "TOP LAYOUT ERRORS RESULTS: CLEAN" in file_content, f"Top layout errors present in {data['settings.input.cell']}. Check {layout_top_errors_file} for errors"
+        except FileNotFoundError:
+            pytest.xfail(f"File '{layout_top_errors_file}' not found")
+    elif data['id'] == 'calibre_native':
+        print("--------Code to be written---------- \n")
+    elif data['id'] == 'calibre_qrc':
+        print("--------Code to be written---------- \n")
+    elif data['id'] == 'pegasus_qrc':
+        print("--------Code to be written---------- \n")
 
     ############END:Failure Checks################################
 
