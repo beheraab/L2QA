@@ -1,3 +1,2 @@
 tech_opt,profile,lib_name,cell_name,temperature,skew,category
 opt12,icv_native,qa78rc_filters,tc_digfilters_top_opt12,25,tttt,lvsr_pcell
-opt12,icv_native,qa78ringoscillator,tc_180_ro_top,25,tttt,mos_pcell
