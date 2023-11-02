@@ -48,8 +48,6 @@ oas_cdl_generated_dict = dict()
 
 def generate_oas_cdl_params():
 
-    #with open('/nfs/site/disks/x5e2d_workarea_beheraab_002/waldo/extraction_WW38.4/src/waldo_extract/kit_POR.csv', 'r') as csv_file:
-
     with open(f'{WEXTRACT_DIR}/kit_POR.csv', 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         for row in csv_reader:
@@ -58,6 +56,7 @@ def generate_oas_cdl_params():
             data = wconfig.merge(wconfig.empty(), profiles.get(profile_name))
             data.put('settings.input.cell', row['cell_name'])   # rev
             data.put('settings.input.category', row['category'])
+            #data.put('settings.input.opt', row['tech_opt'])
             data.put('settings.input.cdslib', CDS_LIB_DIR)
             data.put('settings.input.library', row['lib_name'])
             data.put('settings.input.profile', row['profile'])
@@ -82,13 +81,15 @@ def generate_oas_cdl_params():
 def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch):
 
     os.environ['WALDO_RUN_DIR'] = str(Path(waldo_rundir.path))
+
+
     waldo_kit.__init__(kit_name=Request.config.get('kit_name'),
                         tech_opt=Request.config.get('tech_opt'),
                         iter=Request.config.get('iteration'))
-    print("Kit root: ", waldo_kit.root, "\n")
+    os.environ['DOTNAME'] = waldo_kit.dotname
+    print("Kit layerstack: ", waldo_kit.get_component_layerstack_directory_spec(waldo_kit), "\n")
 
     try:
-        #oasisout = OasisOut(kit=data['settings.pdk.kit'],
         oasisout = OasisOut(kit=waldo_kit,
                             run_dir=waldo_rundir.path,
                             lib_name=data['settings.input.library'],
@@ -119,7 +120,10 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     with open(glob.glob(waldo_kit.root + "/libraries/prim/cdl/common/" + '*.cdl')[0], 'r') as include_file:
         content2 = include_file.read()
 
-    combined_content = content1 + content2
+    with open(glob.glob(waldo_kit.root + "/libraries/sram/cdl/common/" + '*.cdl')[0], 'r') as include_file:
+        content3 = include_file.read()
+
+    combined_content = content1 + content2 + content3
 
     with open(str(Path(waldo_rundir.path, "combined_include_file.cdl")), 'w') as combined_include_file:
         combined_include_file.write(combined_content)

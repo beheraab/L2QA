@@ -1,4 +1,4 @@
-INCLUDE /nfs/site/disks/oneshelf_1278_sc_shelf003/dkg/kits/pdk/dot6/pdk786_r0.5/360/libraries/cds.lib.pcel
+INCLUDE /nfs/site/disks/oneshelf_1278_sc_shelf003/dkg/kits/pdk/dot6/pdk786_r0.5/360/libraries/cds.lib.pcell
 DEFINE qa78libana /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78libana/Trunk::Latest/qa78libana
 DEFINE qa78ringoscillator /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78ringoscillator/Trunk::Latest/qa78ringoscillator
 DEFINE qa78activedevices /nfs/site/disks/icf_fdk_tcmgr003/1278/qa78activedevices/Trunk::Latest/qa78activedevices
