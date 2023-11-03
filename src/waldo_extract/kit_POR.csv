@@ -6,4 +6,3 @@ opt12,icv_native,qa78analog,tc_diff_pair,25,tttt,design_pcell
 opt12,icv_native,qa78complex,tc_top_fas_x0y1,25,tttt,mixed_pcell
 opt12,icv_native,qa78complex,tc_top_fas_dcp_vcc1_nv,25,tttt,mixed_pcell
 opt12,icv_native,qa78complex,tc_top_fas_dcp_vcc_nv,25,tttt,mixed_pcell
-opt12,icv_native,qa78complex,tcvar_top,25,tttt,mixed_pcell

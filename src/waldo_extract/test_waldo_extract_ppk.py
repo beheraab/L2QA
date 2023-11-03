@@ -82,12 +82,11 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
 
     os.environ['WALDO_RUN_DIR'] = str(Path(waldo_rundir.path))
 
-
-    waldo_kit.__init__(kit_name=Request.config.get('kit_name'),
-                        tech_opt=Request.config.get('tech_opt'),
-                        iter=Request.config.get('iteration'))
+    # waldo_kit.__init__(kit_name=Request.config.get('kit_name'),
+    #                     tech_opt=Request.config.get('tech_opt'),
+    #                     iter=Request.config.get('iteration'))
     os.environ['DOTNAME'] = waldo_kit.dotname
-    print("Kit layerstack: ", waldo_kit.get_component_layerstack_directory_spec(waldo_kit), "\n")
+    print("Kit: ", waldo_kit, "\n")
 
     try:
         oasisout = OasisOut(kit=waldo_kit,
@@ -153,6 +152,12 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     id = data['id']
     xfail = data['xfail']
     cds_lib_include = data.get('cds_lib_include', None)
+
+    # save pdk settings from waldo_kit (created with settings from default.conf)
+    data.put('settings.pdk.pdk_name', waldo_kit.name)
+    data.put('settings.pdk.tech_opt', waldo_kit.techopt)
+    data.put('settings.pdk.iteration', waldo_kit.iter)
+
     overrides = wconfig.merge(wconfig.empty(), data['settings'])
     #print("Overrides: ", data['settings.pdk.kit'], "\n")
 
@@ -177,8 +182,10 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     name_oa = "oa_lib"
     if extension == 'oa':
         cds_lib = str(Path(waldo_rundir.path, 'cds.lib'))
-        kit = Kit.get(run0_settings.get('pdk.pdk_name'), run0_settings.get('pdk.tech_opt'))
-        waldo_extract_utils.create_new_library(kit=kit,
+        # kit = Kit.get(kit_name=run0_settings.get('pdk.pdk_name'),
+        #               tech_opt=run0_settings.get('pdk.tech_opt'),
+        #               iter=run0_settings.get('pdk.iteration'))
+        waldo_extract_utils.create_new_library(kit=waldo_kit,
                                                 output_cds_lib=cds_lib,
                                                 run_dir=waldo_rundir.path,
                                                 lib_name=name_oa,
@@ -240,8 +247,10 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
 
     source_path = f"{waldo_rundir.path}/*/"
     print("Source path: ", source_path, "\n")
-    kitname = configs.get('extract_common_settings.pdk.pdk_name')
-    opt = configs.get('extract_common_settings.pdk.tech_opt')
+    # kitname = configs.get('extract_common_settings.pdk.pdk_name')
+    # opt = configs.get('extract_common_settings.pdk.tech_opt')
+    kitname = waldo_kit.name
+    opt = waldo_kit.techopt
     destination_path = f"/p/fdk/f1278/debug_iind/central_runs/{kitname}_{opt}/test/{data['settings.input.library']}/extraction_pcell_cdl_native/{data['settings.input.cell']}/"
     print(f"Destination_path: {destination_path} \n")
     # Create the chain of folders
