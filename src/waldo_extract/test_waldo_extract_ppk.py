@@ -1,8 +1,11 @@
 """Test for waldo-extract flow"""
+from importlib.resources import contents
 import os
 import csv
 from pathlib import Path
 import glob
+from textwrap import wrap
+from xml.dom.expatbuilder import CDATA_SECTION_NODE
 import pytest
 import pytest_check
 from pyhocon import ConfigParser
@@ -17,6 +20,10 @@ from waldo.tool.virtuoso import si, VirtuosoToolSetupError, CdsLib
 
 WEXTRACT_DATA_DIR = str(Path(__file__).parent / 'data')
 WEXTRACT_DIR = str(Path(__file__).parent)
+matching_paths = []
+#root_folder = "/nfs/site/disks/icf_fdk_tcmgr003/1278/"
+cds_libs = {}
+cds_content = []
 
 profiles_spec = f'''
 icv_native {{
@@ -86,8 +93,48 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     #                     tech_opt=Request.config.get('tech_opt'),
     #                     iter=Request.config.get('iteration'))
     os.environ['DOTNAME'] = waldo_kit.dotname
-    print("Kit: ", waldo_kit, "\n")
 
+    ds_root_folder = Request.config.get('designsync_root_folder')
+    #exit(1)
+    print("Kit: ", waldo_kit, "\n")
+    include_file_path = glob.glob(os.path.abspath(os.path.join(waldo_kit.get_component_path("libraries_custom_cdl"), '..', '..', '..')) + "/*.pcell")[0]
+    # Iterate over all items in the root_folder
+    for item in os.listdir(ds_root_folder):
+        item_path = os.path.join(ds_root_folder, item)
+
+        # Check if the item is a directory and starts with "qa78"
+        if os.path.isdir(item_path) and item.startswith("qa78"):
+            # Inside the "qa78" folder, look for a subfolder named "Trunk::Latest"
+            trunk_latest_folder_path = os.path.join(item_path, "Trunk::Latest")
+
+            # Check if the "Trunk::Latest" folder exists
+            if os.path.exists(trunk_latest_folder_path) and os.path.isdir(trunk_latest_folder_path):
+                # Inside the "Trunk::Latest" folder, look for a subfolder with the same name as the parent folder
+                subfolder_path = os.path.join(trunk_latest_folder_path, item)
+
+                # Check if the subfolder with the same name exists
+                if os.path.exists(subfolder_path) and os.path.isdir(subfolder_path):
+                    matching_paths.append(subfolder_path)
+                    cds_libs[item] = subfolder_path
+
+    data.put("libraries", cds_libs)
+    define_list = [f"DEFINE {key} {value}" for key, value in data['libraries'].items()]
+    if 'user_cds_path' in Request.config:
+        print("User cds custom exists \n")
+        user_define_list = [f"DEFINE {key} {value}" for key, value in Request.config.get('user_cds_path').items()]
+
+    #print("Config dictionary: ", user_define_list, "\n")
+    with open(CDS_LIB_DIR, 'w') as file:
+        file.write("INCLUDE " + include_file_path + '\n')
+        for row in define_list:
+            file.write(row + '\n')
+
+        # Check if a variable named 'user_define_list' exists in the local scope
+        if 'user_define_list' in locals():
+            for row in user_define_list:
+                file.write(row + '\n')
+
+    #print("Libraries: ", define_list, "\n")
     try:
         oasisout = OasisOut(kit=waldo_kit,
                             run_dir=waldo_rundir.path,
@@ -113,16 +160,32 @@ def test_extraction_flow(data, waldo_rundir: RunDir, waldo_kit: Kit, monkeypatch
     assert exitcode_oas == 0, stderr_oas or stdout_oas  # to be reconsidered
 
     # Combine intel78custom.cdl and intel78prim.cdl files
-    with open(glob.glob(waldo_kit.root + "/libraries/custom/cdl/common/" + '*.cdl')[0], 'r') as include_file:
+    with open(glob.glob(waldo_kit.get_component_path("libraries_custom_cdl") + "/*.cdl")[0], 'r') as include_file:
         content1 = include_file.read()
 
-    with open(glob.glob(waldo_kit.root + "/libraries/prim/cdl/common/" + '*.cdl')[0], 'r') as include_file:
+    with open(glob.glob(waldo_kit.get_component_path("libraries_prim_cdl") + "/*.cdl")[0], 'r') as include_file:
         content2 = include_file.read()
 
-    with open(glob.glob(waldo_kit.root + "/libraries/sram/cdl/common/" + '*.cdl')[0], 'r') as include_file:
+    with open(glob.glob(waldo_kit.get_component_path("libraries_sram_cdl") + "/*.cdl")[0], 'r') as include_file:
         content3 = include_file.read()
 
-    combined_content = content1 + content2 + content3
+    with open(glob.glob(waldo_kit.get_component_path("libraries_tic_cdl") + "/*.cdl")[0], 'r') as include_file:
+        content4 = include_file.read()
+
+    with open(glob.glob(waldo_kit.get_component_path("libraries_halo_cdl") + "/*.cdl")[0], 'r') as include_file:
+        content5 = include_file.read()
+
+    #print("Path1: ", glob.glob(waldo_kit.get_component_path("libraries_custom_cdl") + "/*.cdl")[0], "\n") #intel78tic.cdl
+    # print("Path2: ", glob.glob(waldo_kit.get_component_path("libraries_prim_cdl") + "/*.cdl")[0], "\n")
+    # print("Path3: ", glob.glob(waldo_kit.get_component_path("libraries_sram_cdl") + "/*.cdl")[0], "\n")
+    # print("Path4: ", glob.glob(waldo_kit.get_component_path("libraries_tic_cdl") + "/*.cdl")[0], "\n")
+
+    # print("Path6: ", glob.glob(waldo_kit.get_component_path("libraries_halo_cdl") + "/*.cdl")[0], "\n")
+
+    #exit(1)
+    #$INTEL_PDK/etc/kit.index.yaml
+
+    combined_content = content1 + content2 + content3 + content4 + content5
 
     with open(str(Path(waldo_rundir.path, "combined_include_file.cdl")), 'w') as combined_include_file:
         combined_include_file.write(combined_content)
