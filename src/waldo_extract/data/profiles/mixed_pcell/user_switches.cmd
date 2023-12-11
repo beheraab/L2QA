@@ -1,1 +1,2 @@
 POWER_EXTRACT: DEVICE_LAYERS
+SPICE_SUBCKT_FILE: /p/fdk/p1278/shelf/repo/kits/pdk/dot3/pdk783_r0.9/1850/libraries/custom/cdl/common/intel78custom.cdl /p/fdk/p1278/shelf/repo/kits/pdk/dot3/pdk783_r0.9/1850/libraries/sram/cdl/common/intel78sram.cdl
